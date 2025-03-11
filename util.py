@@ -1,4 +1,5 @@
 import os
+import sys
 import shutil
 import subprocess
 import numpy as np
@@ -46,3 +47,14 @@ def selectLargestContour(mask):
     ret = np.zeros_like(mask)
     ret[region[:, 0], region[:, 1], region[:, 2]] = 1
     return ret
+
+def findMaskBounds(mask, axis=None):
+    if axis is None:
+        ret = np.zeros((len(mask.shape),2),np.uint16)
+        for a in range(ret.shape[0]):
+            ret[a,:] = findMaskBounds(mask, a)
+        return ret
+    mask_zero_columns = np.where(np.sum(mask, axis=axis) == 0, sys.maxsize, 0)
+    lower_bound =                    np.min(np.argmax(mask, axis=axis)                     + mask_zero_columns)
+    upper_bound = mask.shape[axis] - np.min(np.argmax(np.flip(mask, axis=axis), axis=axis) + mask_zero_columns)
+    return np.array([lower_bound, upper_bound],np.uint16)
