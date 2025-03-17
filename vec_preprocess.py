@@ -43,6 +43,19 @@ def checkDelaunay(polygs, points):
                 return False
     return True
 
+def delaunaySelect(mat, idx):
+    idxarr = []
+    for i in range(len(mat)):
+        if idx+i < len(mat):
+            idxarr.append(idx+i)
+        if idx-i-1 >= 0:
+            idxarr.append(idx-i-1)
+    idxarr = np.array(idxarr)
+    for i in range(len(mat)):
+        if np.sum(mat[idxarr[i],idx-1:idx+1]) == 2:
+            return idxarr[i]
+    return None
+
 def delaunayLiver(liver):
     stages = os.listdir('data/points/'+liver)
     stages = sorted(stages)
@@ -59,20 +72,12 @@ def delaunayLiver(liver):
         tmp = []
         for j in range(len(stages)):
             cor = checkDelaunay(dels[i], pnts[j])
-            if j == 0 and not cor:
-                tmp = [False for _ in range(len(stages))]
-                break
             tmp.append(cor)
         dels2.append(tmp)
+        print(str(i+1)+' / '+str(len(stages)))
     dels2 = np.array(dels2, np.uint8)
-    score = np.sum(dels2, axis=1)
-    ranks = np.argsort(score)[::-1]
-    dels3 = [None for _ in range(len(stages))]
-    for i in range(len(stages)):
-        for j in range(len(stages)):
-            if dels3[j] is None and dels2[ranks[i],j] == 1:
-                dels3[j] = dels2[ranks[i],j]
-    dels3[0] = None
+    print(dels2)
+    dels3 = [None]+[delaunaySelect(dels2, i) for i in range(1, len(stages))]
     for i in range(len(stages)):
         if dels3[i] is not None:
             os.makedirs('data/points_delaunay/'+liver, exist_ok=True)
