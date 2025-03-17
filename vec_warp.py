@@ -23,15 +23,18 @@ def intersectTetrahedron(tetrahedron, point):
         
         # Plane equation: n . (X - v1) = 0 => solving for t in V + t * (P - V)
         denom = np.dot(normal, ray_dir)
+        if np.abs(denom) < 1e-6:  # Ray is parallel to the plane
+            ret.append(1)
+            continue
         
         t = np.dot(normal, v1 - V) / denom
         intersection = V + t * ray_dir
 
         ret.append(np.linalg.norm(intersection - point))
     ret = np.array(ret, np.float32)
-    ret = 10 ** ret
-    if np.any(np.isnan(ret)):
-        ret[:] = 1
+    # ret = 10 ** ret
+    # if np.any(np.isnan(ret)):
+    #     ret[:] = 1
     return ret
 
 def interpolate(tetrahedra_idx, points, idxarr, values):
@@ -93,4 +96,4 @@ livers = sorted(livers)
 for liver in livers:
     processLiver(liver)
 
-# print(intersectTetrahedron(np.array([[0,0,0],[0,0,1],[0,1,1],[1,0,0]],np.float32),np.array([0.5,0,0],np.float32)))
+# print(intersectTetrahedron(np.array([[1,1,1],[1,1,2],[1,2,2],[2,1,1]],np.float32),np.array([1,1,1],np.float32)))
