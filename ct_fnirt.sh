@@ -1,1 +1,0 @@
-fnirt --ref=data/cropped/1/00000000.nii.gz --in=data/cropped/1/00000001.nii.gz --iout=data/warpfields/1/00000001_warped.nii.gz --fout=data/warpfields/1/00000001_warpfield.nii.gz --splineorder=2 --warpres=1,1,1
