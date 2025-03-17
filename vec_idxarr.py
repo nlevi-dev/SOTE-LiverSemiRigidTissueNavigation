@@ -6,6 +6,8 @@ import scipy.ndimage as ndimage
 
 DOWNSAMPLE = 4.0
 
+DEBUG = False
+
 def pointInTetrahedron(P, A, B, C, D):
     T = np.column_stack([A - D, B - D, C - D])
     v = P - D
@@ -23,6 +25,8 @@ def findTetrahedra(tetrahedra, points):
                 break
         if len(ret) == i:
             ret.append(-1)
+        if DEBUG:
+            print(str(i+1)+' / '+str(len(points)))
     return np.array(ret, np.int16)
 
 def processStage(inp):
@@ -65,6 +69,8 @@ def processLiver(liver):
     stages = os.listdir('data/points_delaunay/'+liver)
     stages = sorted(stages)
     stages = [[liver,s[0:-4]] for s in stages]
+    if DEBUG:
+        stages = stages[0:1]
     with multiprocessing.Pool(multiprocessing.cpu_count()-1) as pool:
         pool.map(processStage, stages)
 
