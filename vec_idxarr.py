@@ -29,7 +29,6 @@ def processStage(inp):
     liver, T1 = inp
     T0 = str(int(T1)-1).zfill(4)
     P0 = np.load('data/points/'+liver+'/'+T0+'.npy')[:,0:3] / DOWNSAMPLE
-    P1 = np.load('data/points/'+liver+'/'+T1+'.npy')[:,0:3] / DOWNSAMPLE
     tet_idx = np.load('data/points_delaunay/'+liver+'/'+T1+'.npy')
     tet = np.zeros(tet_idx.shape+(3,), P0.dtype)
     for i in range(len(tet_idx)):
@@ -66,7 +65,6 @@ def processLiver(liver):
     stages = os.listdir('data/points_delaunay/'+liver)
     stages = sorted(stages)
     stages = [[liver,s[0:-4]] for s in stages]
-    stages = stages[0:1]
     with multiprocessing.Pool(multiprocessing.cpu_count()-1) as pool:
         pool.map(processStage, stages)
 
