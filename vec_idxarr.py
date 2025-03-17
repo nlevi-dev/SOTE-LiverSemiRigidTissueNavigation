@@ -63,7 +63,7 @@ def processStage(inp):
     mat[1,1] *= DOWNSAMPLE
     mat[2,2] *= DOWNSAMPLE
     os.makedirs('data/idxarr/'+liver, exist_ok=True)
-    nib.save(nib.MGHImage(idxarr,mat,raw.header),'data/idxarr/'+liver+'/'+T0+'.nii.gz')
+    nib.save(nib.MGHImage(idxarr,mat,raw.header),'data/idxarr/'+liver+'/'+T1+'.nii.gz')
 
 def processLiver(liver):
     stages = os.listdir('data/points_delaunay/'+liver)
