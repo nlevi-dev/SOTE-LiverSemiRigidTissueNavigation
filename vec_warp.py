@@ -12,42 +12,32 @@ def intersectTetrahedron(tetrahedron, point):
     for i in range(4):
         V = tetrahedron[i]  # The vertex from which the ray originates
         plane_vertices = np.delete(tetrahedron, i, axis=0)  # The opposite face
-        
         # Compute plane normal
         v1, v2, v3 = plane_vertices
         normal = np.cross(v2 - v1, v3 - v1)
-        normal /= np.linalg.norm(normal)  # Normalize
-        
+        normal /= np.linalg.norm(normal)
         # Compute ray direction
         ray_dir = point - V
-        
         # Plane equation: n . (X - v1) = 0 => solving for t in V + t * (P - V)
         denom = np.dot(normal, ray_dir)
-        if np.abs(denom) < 1e-6:  # Ray is parallel to the plane
-            ret.append(1)
-            continue
-        
         t = np.dot(normal, v1 - V) / denom
         intersection = V + t * ray_dir
-
         ret.append(np.linalg.norm(intersection - point))
-    ret = np.array(ret, np.float32)
-    # ret = 10 ** ret
-    # if np.any(np.isnan(ret)):
-    #     ret[:] = 1
-    return ret
+    return np.array(ret, np.float32)
 
-def interpolate(tetrahedra_idx, points, idxarr, values):
+def interpolate(tetrahedra_idx, coords, points, idxarr, values):
     ret = []
     for i in range(len(points)):
         tet_values  = values[tetrahedra_idx[idxarr[i]]]
         point = points[i]
-        tetrahedron = points[tetrahedra_idx[idxarr[i]]]
+        tetrahedron = coords[tetrahedra_idx[idxarr[i]]]
         weights = intersectTetrahedron(tetrahedron, point)
         s = np.sum(weights)
         weights = np.repeat(np.expand_dims(weights,-1),3,-1)
+        if np.any(np.isnan(weights)) or s == 0:
+            print('Invalid weights!')
+            weights = np.array([1,1,1,1],np.float32)
         ret.append(np.sum(tet_values * weights, 0) / s)
-        # ret.append(np.sum(tet_values, 0) / 4.0)
         if DEBUG:
             print(str(i+1)+' / '+str(len(points)))
     return np.array(ret, np.float32)
@@ -75,9 +65,9 @@ def processStage(inp):
     coords = coords.reshape((-1, 3))
     warp   = warp.reshape((-1, 3))
     idxarr = idxarr[mask]
-    points = coords[mask]
+    coords = coords[mask]
     diff = P1-P0
-    warp[mask, :] = interpolate(tet_idx, points, idxarr, diff)
+    warp[mask, :] = interpolate(tet_idx, P0, coords, idxarr, diff)
     warp = warp.reshape(shape+(3,))
     os.makedirs('data/warp/'+liver, exist_ok=True)
     nib.save(nib.MGHImage(warp,raw.get_sform(),raw.header),'data/warp/'+liver+'/'+T1+'.nii.gz')
@@ -95,5 +85,3 @@ livers = os.listdir('data/points_raw')
 livers = sorted(livers)
 for liver in livers:
     processLiver(liver)
-
-# print(intersectTetrahedron(np.array([[1,1,1],[1,1,2],[1,2,2],[2,1,1]],np.float32),np.array([1,1,1],np.float32)))
