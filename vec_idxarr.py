@@ -7,12 +7,11 @@ import numpy as np
 def processLiver(liver):
     stages = os.listdir('data/points_delaunay/'+liver)
     stages = sorted(stages)
+    raw = nib.load('data/preprocessed/'+liver+'/0000.nii.gz')
     for i in range(len(stages)):
         stage = stages[i][0:-4]
         points = np.load('data/points/'+liver+'/'+stage+'.npy')
-        raw = nib.load('data/preprocessed/'+liver+'/'+stage+'.nii.gz')
-        data = raw.get_fdata()
-        test = np.zeros(data.shape, np.bool_)
+        test = np.zeros(raw.get_fdata().shape, np.bool_)
         for p in points:
             p = np.array(np.round(p),np.uint16)
             test[p[0]-3:p[0]+3,p[1]-3:p[1]+3,p[2]-3:p[2]+3] = 1

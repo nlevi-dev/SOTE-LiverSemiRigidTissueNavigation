@@ -13,6 +13,7 @@ def processLiver(liver):
     stages = sorted(stages)
     processed = [[] for _ in range(len(stages)//len(ts))]
     idxs = ['' for _ in range(len(processed))]
+    mat = np.linalg.inv(nib.load('data/nifti/'+liver+'/0000.nii.gz').get_sform())
     for j in range(len(ts)):
         t = ts[j]
         st = [s for s in stages if s[0] == t]
@@ -24,7 +25,6 @@ def processLiver(liver):
             while len(idx) < 4:
                 idx = '0'+idx
             idxs[i] = idx
-            mat = np.linalg.inv(nib.load('data/nifti/'+liver+'/'+idx+'.nii.gz').get_sform())
             processed[i] = processed[i]+[list(np.dot(mat,np.array(data[d]['position']+[1])*np.array([-1,-1,1,1]))[0:3])+[j,d] for d in range(len(data))]
     processed = np.array(processed,np.float16)
     for i in range(len(idxs)):

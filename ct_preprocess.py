@@ -9,6 +9,7 @@ from util import *
 def processLiver(liver):
     stages = os.listdir('data/nifti/'+liver)
     stages = sorted(stages)
+    mat = None
     for i in range(len(stages)):
         stage = stages[i]
 
@@ -60,8 +61,13 @@ def processLiver(liver):
 
         data = ndimage.gaussian_filter(data, sigma=0.5)
 
+        if mat is None:
+            center = ndimage.center_of_mass(mask)
+            mat = np.eye(4)
+            mat[0:3,3] = np.array(center) * -1
+
         os.makedirs('data/preprocessed/'+liver, exist_ok=True)
-        nib.save(nib.MGHImage(data,raw.get_sform(),raw.header),'data/preprocessed/'+liver+'/'+stage)
+        nib.save(nib.MGHImage(data,mat,raw.header),'data/preprocessed/'+liver+'/'+stage)
 
 livers = os.listdir('data/nifti')
 livers = sorted(livers)
