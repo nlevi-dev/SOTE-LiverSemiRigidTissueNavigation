@@ -5,7 +5,6 @@ import nibabel as nib
 from scipy.spatial import Delaunay
 
 DOWNSAMPLE = 4.0
-
 DEBUG = False
 
 def intersectTetrahedron(tetrahedron, point):
@@ -71,7 +70,7 @@ def processStage(inp):
     warp[mask, :] = interpolate(tet_idx, P0, coords, idxarr, diff)
     warp = warp.reshape(shape+(3,))
     os.makedirs('data/warp/'+liver, exist_ok=True)
-    nib.save(nib.MGHImage(warp,raw.get_sform(),raw.header),'data/warp/'+liver+'/'+T1+'.nii.gz')
+    nib.save(nib.MGHImage(warp,raw.get_sform(),raw.header),'data/warp/'+liver+'/'+T0+'.nii.gz')
 
 def processLiver(liver):
     stages = os.listdir('data/points/'+liver)

@@ -6,7 +6,6 @@ from scipy.spatial import Delaunay
 import scipy.ndimage as ndimage
 
 DOWNSAMPLE = 4.0
-
 DEBUG = False
 
 def pointInTetrahedron(P, tet):
@@ -31,14 +30,13 @@ def findTetrahedra(tetrahedra, points):
     return np.array(ret, np.int16)
 
 def processStage(inp):
-    liver, T1 = inp
-    T0 = str(int(T1)-1).zfill(4)
-    P0 = np.load('data/points/'+liver+'/'+T0+'.npy')[:,0:3] / DOWNSAMPLE
-    tet_idx = Delaunay(P0).simplices
-    tet = np.zeros(tet_idx.shape+(3,), P0.dtype)
+    liver, stage = inp
+    points = np.load('data/points/'+liver+'/'+stage+'.npy')[:,0:3] / DOWNSAMPLE
+    tet_idx = Delaunay(points).simplices
+    tet = np.zeros(tet_idx.shape+(3,), points.dtype)
     for i in range(len(tet_idx)):
-        tet[i,:] = P0[tet_idx[i]]
-    raw = nib.load('data/preprocessed/'+liver+'/'+T0+'.nii.gz')
+        tet[i,:] = points[tet_idx[i]]
+    raw = nib.load('data/preprocessed/'+liver+'/'+stage+'.nii.gz')
     mask = np.array(raw.get_fdata())
     mask[mask > 0] = 1
     mask = np.array(mask, np.bool_)
@@ -64,7 +62,7 @@ def processStage(inp):
     mat[1,1] *= DOWNSAMPLE
     mat[2,2] *= DOWNSAMPLE
     os.makedirs('data/idxarr/'+liver, exist_ok=True)
-    nib.save(nib.MGHImage(idxarr,mat,raw.header),'data/idxarr/'+liver+'/'+T1+'.nii.gz')
+    nib.save(nib.MGHImage(idxarr,mat,raw.header),'data/idxarr/'+liver+'/'+stage+'.nii.gz')
 
 def processLiver(liver):
     stages = os.listdir('data/points/'+liver)
