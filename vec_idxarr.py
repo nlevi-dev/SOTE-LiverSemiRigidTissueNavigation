@@ -2,13 +2,15 @@ import os
 import multiprocessing
 import numpy as np
 import nibabel as nib
+from scipy.spatial import Delaunay
 import scipy.ndimage as ndimage
 
 DOWNSAMPLE = 4.0
 
 DEBUG = False
 
-def pointInTetrahedron(P, A, B, C, D):
+def pointInTetrahedron(P, tet):
+    A, B, C, D = tet
     T = np.column_stack([A - D, B - D, C - D])
     v = P - D
     barycentric = np.linalg.solve(T, v)
@@ -19,8 +21,7 @@ def findTetrahedra(tetrahedra, points):
     ret = []
     for i, P in enumerate(points):
         for j, tet in enumerate(tetrahedra):
-            A, B, C, D = tet
-            if pointInTetrahedron(P, A, B, C, D):
+            if pointInTetrahedron(P, tet):
                 ret.append(j)
                 break
         if len(ret) == i:
@@ -33,7 +34,7 @@ def processStage(inp):
     liver, T1 = inp
     T0 = str(int(T1)-1).zfill(4)
     P0 = np.load('data/points/'+liver+'/'+T0+'.npy')[:,0:3] / DOWNSAMPLE
-    tet_idx = np.load('data/points_delaunay/'+liver+'/'+T1+'.npy')
+    tet_idx = Delaunay(P0).simplices
     tet = np.zeros(tet_idx.shape+(3,), P0.dtype)
     for i in range(len(tet_idx)):
         tet[i,:] = P0[tet_idx[i]]

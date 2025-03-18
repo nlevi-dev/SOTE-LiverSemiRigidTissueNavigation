@@ -2,6 +2,7 @@ import os
 import multiprocessing
 import numpy as np
 import nibabel as nib
+from scipy.spatial import Delaunay
 
 DOWNSAMPLE = 4.0
 
@@ -47,8 +48,8 @@ def processStage(inp):
     T0 = str(int(T1)-1).zfill(4)
     P0 = np.load('data/points/'+liver+'/'+T0+'.npy')[:,0:3] / DOWNSAMPLE
     P1 = np.load('data/points/'+liver+'/'+T1+'.npy')[:,0:3] / DOWNSAMPLE
-    tet_idx = np.load('data/points_delaunay/'+liver+'/'+T1+'.npy')
-    raw = nib.load('data/idxarr/'+liver+'/'+T1+'.nii.gz')
+    tet_idx = Delaunay(P0).simplices
+    raw = nib.load('data/idxarr/'+liver+'/'+T0+'.nii.gz')
     idxarr = np.array(raw.get_fdata(), np.int16)
     mask = np.array(idxarr >= 0, np.bool_)
     shape = idxarr.shape
@@ -73,8 +74,8 @@ def processStage(inp):
     nib.save(nib.MGHImage(warp,raw.get_sform(),raw.header),'data/warp/'+liver+'/'+T1+'.nii.gz')
 
 def processLiver(liver):
-    stages = os.listdir('data/points_delaunay/'+liver)
-    stages = sorted(stages)
+    stages = os.listdir('data/points/'+liver)
+    stages = sorted(stages)[1:]
     stages = [[liver,s[0:-4]] for s in stages]
     if DEBUG:
         stages = stages[0:1]
