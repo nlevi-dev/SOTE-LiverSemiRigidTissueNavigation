@@ -3,9 +3,8 @@ import multiprocessing
 import numpy as np
 import nibabel as nib
 from scipy.spatial import Delaunay
-
-DOWNSAMPLE = 4.0
-DEBUG = False
+from util import inpaint
+from params import *
 
 def intersectTetrahedron(tetrahedron, point):
     ret = []
@@ -69,8 +68,10 @@ def processStage(inp):
     diff = P1-P0
     warp[mask, :] = interpolate(tet_idx, P0, coords, idxarr, diff)
     warp = warp.reshape(shape+(3,))
+    mask = mask.reshape(shape)
+    warp = inpaint(warp, np.logical_not(mask))
     os.makedirs('data/warp/'+liver, exist_ok=True)
-    nib.save(nib.MGHImage(warp,raw.get_sform(),raw.header),'data/warp/'+liver+'/'+T0+'.nii.gz')
+    nib.save(nib.MGHImage(warp,raw.get_sform(),raw.header),'data/warp/'+liver+'/'+T1+'.nii.gz')
 
 def processLiver(liver):
     stages = os.listdir('data/points/'+liver)

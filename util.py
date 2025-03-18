@@ -58,3 +58,9 @@ def findMaskBounds(mask, axis=None):
     lower_bound =                    np.min(np.argmax(mask, axis=axis)                     + mask_zero_columns)
     upper_bound = mask.shape[axis] - np.min(np.argmax(np.flip(mask, axis=axis), axis=axis) + mask_zero_columns)
     return np.array([lower_bound, upper_bound],np.uint16)
+
+def inpaint(image, mask):
+    indices = ndimage.distance_transform_edt(mask, return_distances=False, return_indices=True)
+    inpainted_image = image.copy()
+    inpainted_image[mask] = image[tuple(indices[:, mask])]
+    return inpainted_image

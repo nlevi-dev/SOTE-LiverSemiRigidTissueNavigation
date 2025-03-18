@@ -1,0 +1,2 @@
+DOWNSAMPLE = 4.0
+DEBUG = False

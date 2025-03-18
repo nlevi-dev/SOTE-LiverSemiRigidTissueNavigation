@@ -4,9 +4,7 @@ import numpy as np
 import nibabel as nib
 from scipy.spatial import Delaunay
 import scipy.ndimage as ndimage
-
-DOWNSAMPLE = 4.0
-DEBUG = False
+from params import *
 
 def pointInTetrahedron(P, tet):
     A, B, C, D = tet
