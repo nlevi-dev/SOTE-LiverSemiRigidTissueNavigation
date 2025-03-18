@@ -67,7 +67,7 @@ def processStage(inp):
     nib.save(nib.MGHImage(idxarr,mat,raw.header),'data/idxarr/'+liver+'/'+T1+'.nii.gz')
 
 def processLiver(liver):
-    stages = os.listdir('data/points_delaunay/'+liver)
+    stages = os.listdir('data/points/'+liver)
     stages = sorted(stages)
     stages = [[liver,s[0:-4]] for s in stages]
     if DEBUG:
