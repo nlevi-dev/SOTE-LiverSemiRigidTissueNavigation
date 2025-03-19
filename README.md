@@ -64,3 +64,57 @@ While this research provides a solid foundation, it is not yet a generalized or 
 * Enhance CT imaging resolution to track fine tissue structures without relying solely on beads.
 
 With these improvements, the research can move closer to identifying stable liver regions that resist deformation, ultimately improving semi-rigid tissue navigation techniques for surgical and diagnostic applications.
+
+## Source
+
+```
+├── data
+│   ├── raw
+│   ├── nifti
+│   ├── preprocessed
+│   ├── points_raw
+│   ├── points
+│   ├── idxarr
+│   ├── warp
+│   ├── warpstack
+│   └── rigid
+├── ct_tonifti.py
+├── ct_preprocess.py
+├── vec_preprocess.py
+├── vec_idxarr.py
+├── vec_warp.py
+├── vec_warpstack.py
+└── vec_rigid.py
+```
+
+### Data
+
+* `raw`: Raw DICOM CT images.
+* `nifti`: CT images converted to NIfTI format.
+* `preprocessed`: Preprocessed CT images.
+* `points_raw`: Raw segmented bead coordinates.
+* `points`: Preprocessed bead coordinates, converted into voxel space and stored in NumPy format.
+* `idxarr`: Volumetric NIfTI file indicating the tetrahedral index for each voxel, derived from Delaunay tetrahedralization.
+* `warp`: Interpolated volumetric warp fields (3+1D image), representing xyz displacement vectors between neighboring stages.
+* `warpstack`: Stacked warp fields (W<sub>0n</sub>), capturing cumulative deformations across multiple stages.
+* `rigid`: Volumetric images representing tissue rigidity, computed from the warpstack data.
+
+### Scripts
+
+* `ct_tonifti`: Converts DICOM CT images to NIfTI format.
+* `ct_preprocess`: Applies preprocessing steps:
+  * Thresholds CT image backgrounds.
+  * Removes noise and certain artifacts using morphological operations.
+  * Normalizes the voxel intensity histogram to enhance fine-grained details.
+* `vec_preprocess`: Processes raw JSON bead coordinate files:
+  * Groups and reads raw data.
+  * Converts coordinates into voxel space coordinates, using the affine matrix from the first NIfTI CT record.
+* `vec_idxarr`: Computes Delaunay tetrahedralization and assigns a tetrahedral index to each voxel within the liver’s hull (used for interpolation in the next step).
+* `vec_warp`: Computes and interpolates warp fields:
+  * Calculates warp vector clouds from the tracked bead point cloud for each neighboring time step.
+  * Interpolates voxel-level warp vectors using the precomputed tetrahedral index array.
+  * Performs inpainting to assign values to voxels outside the liver’s hull using the nearest neighboring values.
+* `vec_warpstack`: Stacks neighboring warp fields to represent cumulative deformations in W<sub>0n</sub> format.
+* `vec_rigid`: Computes the rigidity metric from the stacked warp fields.
+  * The only tunable hyperparameter is `KERNEL`, which defines the relative filter size (for the first dimension of the volumetric image).
+  * Example: A `KERNEL` value of `0.1` with a sagittal dimension of `512` results in a kernel size of `51`.
