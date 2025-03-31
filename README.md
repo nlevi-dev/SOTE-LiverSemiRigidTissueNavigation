@@ -1,5 +1,9 @@
 # Liver Semi-Rigid Tissue Navigation Research Project
 
+## License
+
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
+
 ## Research Goal
 
 The objective of this research is to determine whether there are regions within the liver that resist deformation, maintaining their internal tissue structure relative to surrounding areas.
