@@ -28,6 +28,9 @@ def processStage(inp):
         res[x,y,z] = np.std(p_data)
     os.makedirs('data/rigid/'+liver, exist_ok=True)
     nib.save(nib.MGHImage(res,raw.get_sform(),raw.header),'data/rigid/'+liver+'/'+stage+'.nii.gz')
+    data[np.logical_not(mask)] = 0
+    os.makedirs('data/length/'+liver, exist_ok=True)
+    nib.save(nib.MGHImage(data,raw.get_sform(),raw.header),'data/length/'+liver+'/'+stage+'.nii.gz')
 
 def processLiver(liver):
     stages = os.listdir('data/warpstack/'+liver)
