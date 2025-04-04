@@ -21,10 +21,8 @@ from util import generateSphere
 
 KERNEL_R = 5.0  #mm
 
-W = 256.0 #mm (constant)
-
 A = 1 # axis      (0-2)
-D = 0 # direction (0: 0->L; 1: L->0)
+D = 1 # direction (0: 0->L; 1: L->0)
 
 def processStage(inp):
     liver, stage = inp
@@ -32,7 +30,7 @@ def processStage(inp):
     mask = np.array(mask >= 0, np.bool_)
     raw = nib.load('data/warpstack/'+liver+'/'+stage+'.nii.gz')
     data = raw.get_fdata()
-    RATIO = W/float(data.shape[0]) # mm/vox
+    RATIO = data.get_sform()[0,0]  # mm/vox
     kr2 = KERNEL_R/RATIO*2.0       # vox
     kr = int(kr2)//2
     kr2 = kr*2+1
