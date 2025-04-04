@@ -76,9 +76,10 @@ def processLiver(liver):
         data = ndimage.gaussian_filter(data, sigma=0.5)
 
         if mat is None:
-            center = ndimage.center_of_mass(mask)
-            mat = np.eye(4)
-            mat[0:3,3] = np.array(center) * -1
+            # center = ndimage.center_of_mass(mask)
+            mat = np.eye(4)*0.5
+            mat[3,3] = 1
+            # mat[0:3,3] = np.array(center) * -1
 
         os.makedirs('data/preprocessed/'+liver, exist_ok=True)
         nib.save(nib.MGHImage(data,mat,raw.header),'data/preprocessed/'+liver+'/'+stage)
